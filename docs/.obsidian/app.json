@@ -1,0 +1,9 @@
+{
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "shortest",
+  "useMarkdownLinks": false,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "00 - Caixa de Entrada",
+  "attachmentFolderPath": "Anexos",
+  "showUnsupportedFiles": true
+}
