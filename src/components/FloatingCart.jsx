@@ -1,6 +1,15 @@
 import { useLiquidGlass } from "@glinui/liquid-glass";
 import { useEffect, useRef, useState } from "react";
 
+const FOCUSABLE_SELECTOR = [
+  "button:not([disabled])",
+  "[href]",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
 function CartIcon({ className = "" }) {
   return (
     <svg
@@ -53,6 +62,8 @@ function FloatingCart({ items, onRemove, onClear }) {
   const [open, setOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState("idle");
   const closeButtonRef = useRef(null);
+  const dialogRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
   const { ref, style, svgFilter, isSupported } = useLiquidGlass({
     displacement: 10,
     blur: 18,
@@ -61,22 +72,77 @@ function FloatingCart({ items, onRemove, onClear }) {
   });
 
   useEffect(() => {
-    if (!open) return undefined;
+    if (items.length === 0 && open) setOpen(false);
+  }, [items.length, open]);
+
+  useEffect(() => {
+    setCopyStatus("idle");
+  }, [items]);
+
+  useEffect(() => {
+    if (!open || items.length === 0) return undefined;
 
     const previousOverflow = document.body.style.overflow;
+    previouslyFocusedRef.current = document.activeElement;
     document.body.style.overflow = "hidden";
     closeButtonRef.current?.focus();
 
     const handleKeyDown = (event) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+
+      const focusableElements = Array.from(dialog.querySelectorAll(FOCUSABLE_SELECTOR)).filter(
+        (element) => element instanceof HTMLElement && !element.hidden,
+      );
+
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+      const activeElement = document.activeElement;
+      const focusIsInside = dialog.contains(activeElement);
+
+      if (event.shiftKey && (!focusIsInside || activeElement === firstFocusable)) {
+        event.preventDefault();
+        lastFocusable.focus();
+      } else if (!event.shiftKey && (!focusIsInside || activeElement === lastFocusable)) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
+
+      const previouslyFocused = previouslyFocusedRef.current;
+      if (previouslyFocused instanceof HTMLElement && previouslyFocused.isConnected) {
+        previouslyFocused.focus();
+      }
     };
-  }, [open]);
+  }, [open, items.length]);
+
+  const handleOpen = () => {
+    setCopyStatus("idle");
+    setOpen(true);
+  };
+
+  const handleClear = () => {
+    setOpen(false);
+    onClear();
+  };
 
   const handleCopyOrder = async () => {
     try {
@@ -99,7 +165,7 @@ function FloatingCart({ items, onRemove, onClear }) {
           ref={ref}
           style={{ ...style, viewTransitionName: "persistent-cart" }}
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={handleOpen}
           aria-label={`Abrir carrinho com ${items.length} ${items.length === 1 ? "item" : "itens"}`}
           data-glin-liquid-glass={isSupported ? "refracted" : "fallback"}
           className="fixed-cart-glass grid size-14 place-items-center rounded-full text-white"
@@ -122,6 +188,7 @@ function FloatingCart({ items, onRemove, onClear }) {
             onClick={() => setOpen(false)}
           />
           <section
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="cart-title"
@@ -165,8 +232,8 @@ function FloatingCart({ items, onRemove, onClear }) {
                             <img src={item.image} alt="" className="size-14 shrink-0 object-contain" />
                           ) : null}
                           <div className="min-w-0">
-                          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">{item.kind}</span>
-                          <h3 className="mt-1 font-semibold tracking-[-0.02em] text-black">{item.title}</h3>
+                            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">{item.kind}</span>
+                            <h3 className="mt-1 font-semibold tracking-[-0.02em] text-black">{item.title}</h3>
                           </div>
                         </div>
                         <button
@@ -201,7 +268,7 @@ function FloatingCart({ items, onRemove, onClear }) {
                         ? "Não foi possível copiar"
                         : "Copiar resumo do pedido"}
                   </button>
-                  <button type="button" onClick={onClear} className="min-h-11 text-sm font-semibold text-muted">
+                  <button type="button" onClick={handleClear} className="min-h-11 text-sm font-semibold text-muted">
                     Limpar carrinho
                   </button>
                 </div>
