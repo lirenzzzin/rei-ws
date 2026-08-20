@@ -80,7 +80,7 @@ function FloatingCart({ items, onRemove, onClear }) {
   }, [items]);
 
   useEffect(() => {
-    if (!open || items.length === 0) return undefined;
+    if (!open) return undefined;
 
     const previousOverflow = document.body.style.overflow;
     previouslyFocusedRef.current = document.activeElement;
@@ -132,11 +132,16 @@ function FloatingCart({ items, onRemove, onClear }) {
         previouslyFocused.focus();
       }
     };
-  }, [open, items.length]);
+  }, [open]);
 
   const handleOpen = () => {
     setCopyStatus("idle");
     setOpen(true);
+  };
+
+  const handleRemove = (id) => {
+    if (items.length === 1) setOpen(false);
+    onRemove(id);
   };
 
   const handleClear = () => {
@@ -238,7 +243,7 @@ function FloatingCart({ items, onRemove, onClear }) {
                         </div>
                         <button
                           type="button"
-                          onClick={() => onRemove(item.id)}
+                          onClick={() => handleRemove(item.id)}
                           className="min-h-11 shrink-0 px-1 text-sm font-semibold text-muted"
                           aria-label={`Remover ${item.title}`}
                         >
