@@ -42,8 +42,35 @@ const modelFolders = {
   "17e": "/assets/17/I17e/",
 };
 
+const watchFamilyImages = {
+  series: "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/watch-compare-s11-202509?.v=dWNxM2FBcWh6K3lqd1ZDZ0J0SmQzekFLdnpTWVk5T2JjWkxmaUh4TE96K0Fhc0dPaExJNGphZ3FWVWlwSk9MUjd1Z1M3bThWSUVZMVcrMUZmTjBCLzQ3emJ1eTV0WHMvNWc0cG1uZVhXdEU&fmt=jpeg&hei=520&qlt=90&wid=520",
+  se: "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/watch-compare-se-202509?.v=eEpjZGlsbzI4YmtuR2pKQXNDTzZ5eThnZFRkdzMwY2NsY2I5Y3NQL214QzM2dk9rVWpEampSQXBqK3dUclB1WEdjSkVFV1FxeHRkZDFvRXAwaDZkVGRCVnRkbnoxcUU4aG9vT2t1SVBnd28&fmt=jpeg&hei=520&qlt=90&wid=520",
+  ultra: "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/watch-compare-ultra3-202509_GEO_BR?.v=L2VSQkd4TDVJZ2FsTFA2bmpPOGRLTEh2d2I2QWRTY0NRMFJRd2UzeExSdGpqWTd3QmZsaTR0RWczRFFQbWt1SmxyZTFMN3VtaTIzQW5MWDFYQUFpang4S0tkQVQyYmQ2NCt3czRObDFkd2NvZUFxYnFWZTA4SlNwWDZ5dVA4RGc&fmt=jpeg&hei=520&qlt=90&wid=520",
+};
+
+const watchModelImages = {
+  "series-8": watchFamilyImages.series,
+  "series-9": watchFamilyImages.series,
+  "series-10": watchFamilyImages.series,
+  "series-11": watchFamilyImages.series,
+  "se-2": watchFamilyImages.se,
+  "se-3": watchFamilyImages.se,
+  ultra: watchFamilyImages.ultra,
+  "ultra-2": watchFamilyImages.ultra,
+  "ultra-3": watchFamilyImages.ultra,
+};
+
+const chargerImages = {
+  "usb-c-lightning": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MM0A3?.v=bDF5RFJXQVJDdHQzMUZvOFpZbElsMmorYzFkTG5HaE9wejd5WUxYZjRML0dhd3hTd0Z4eVU5dlRoTFZsS1dHQnF1RHVsWWtITU8zLy9oRVFmWitIakE&fmt=jpeg&hei=2000&qlt=90&wid=2000",
+  "usb-c-usb-c": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MQKJ3?.v=SHpUSUtNbnRMTndDWEpjeFgxZ0c5V2orYzFkTG5HaE9wejd5WUxYZjRMK2k0MUtKM1cwZkI0WFZOa2NIRHpiRHJSd3NRNlBrUkNpQkIyQjhrbHZqb2c&fmt=jpeg&hei=2000&qlt=90&wid=2000",
+  "adapter-20w": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MUVU3?.v=bUljUWFoWU5tWWx6Yzc0M1I0aGtpZ2tuVHYzMERCZURia3c5SzJFOTlPZ0JzRncwa3hCV01oWVZJYmVjbndDL1BGU0ZvTStVOXQvUnY0bGRiVzVrSFE&fmt=jpeg&hei=1144&qlt=90&wid=1144",
+  magsafe: "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MGD74?.v=aExnbXd2NkZ4NmZWdEdRL1Zzbi9oR2orYzFkTG5HaE9wejd5WUxYZjRMOHhwd2F1dWM5TE1maUVxSVV1anZjQXdYczhRdkV0elVtZUJkWHRSQU9iaHc&fmt=jpeg&hei=2000&qlt=90&wid=2000",
+  "watch-cable": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MT0H3?.v=K0tKb29xaWdxVEFoa0c0dFFRY3Jld2tuVHYzMERCZURia3c5SzJFOTlPaFdPNXNCZjFUY2U4dzhjY0xjYWZIRjFydkI0djlScXlvb25UU0c3MFZZWUE&fmt=jpeg&hei=1144&qlt=90&wid=1144",
+};
+
 const swatches = {
   preto: "#1d1d1f",
+  "preto brilhante": "#1d1d1f",
   "preto espacial": "#2e2c2f",
   branco: "#f5f5f0",
   "branco nuvem": "#f7f8f5",
@@ -52,10 +79,12 @@ const swatches = {
   "cinza espacial": "#535150",
   dourado: "#ead1ad",
   "dourado claro": "#f0dfbd",
+  "ouro rosa": "#e7c1b8",
   amarelo: "#f9e267",
   "laranja cosmico": "#f47731",
   vermelho: "#bd1f2d",
-  "productred": "#bd1f2d",
+  "product red": "#bd1f2d",
+  productred: "#bd1f2d",
   rosa: "#f2c4c9",
   "rosa palido": "#f2d8dc",
   roxo: "#c7b2d6",
@@ -127,6 +156,14 @@ export function getFeatureIPhoneImage(modelId, color) {
   });
 
   return match?.[1] ?? getIPhoneImage(modelId, color);
+}
+
+export function getWatchImage(modelId) {
+  return watchModelImages[modelId] ?? watchFamilyImages.series;
+}
+
+export function getChargerImage(productId) {
+  return chargerImages[productId] ?? "";
 }
 
 export function getFinishColor(color) {
